@@ -70,6 +70,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="input-wrapper">
       <paper-input id="input" label="[[label]]" no-label-float="[[noLabelFloat]]" on-keyup="_onKeypress" disabled="{{disabled}}" auto-validate$="[[autoValidate]]" error-message$="[[errorMessage]]" required$="[[required]]" value="{{text}}"></paper-input>
       <paper-icon-button id="clear" icon="clear" on-click="_clear"></paper-icon-button>
+      <span class="newItem">new</span>
     </div>
     <paper-material elevation="1" id="suggestionsWrapper">
       <template is="dom-repeat" items="{{_suggestions}}">
@@ -166,6 +167,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       minLength:{
         value:1
       },
+      
+
+      /**
+       * true if autocompltes value is new means not from suggestions list
+       */
+      isNewValue:{
+        type: Boolean,
+        type: false,
+        reflectToAttribute: true
+      },
+      
       /**
        * `_suggestions` Array with the actual suggestions to display
        */
@@ -296,7 +308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               objText=item.toString();
               objValue=objText;
             }
-            if(objText.toLowerCase().indexOf(value)===0){
+            if(objText.toLowerCase().indexOf(value)!== -1){
               // Adds the item to the suggestions list.
               this.push('_suggestions', {text : objText , value : objValue});
             }
@@ -323,9 +335,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.$.clear.style.display = 'none';
       this._emptyItems();
       this._fireEvent(selectedOption,'selected');
+      this._isNewValue();
       setTimeout(function() {
         self._hideSuggestionsWrapper();
       }, 300);
+    },
+    
+    /**
+     * it checkes whether autocomplete has new value or not
+     * if found new value, it sets isNewValue property to true
+     */
+    _isNewValue: function(){
+      
     },
 
     _getItems:function(){
@@ -429,6 +450,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       };
       
       this._fireEvent(option,'blur');
+      this._isNewValue();
       setTimeout(function() {
         self.$.clear.style.display = 'none';
         self._hideSuggestionsWrapper();
