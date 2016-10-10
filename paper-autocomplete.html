@@ -121,6 +121,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       
       /**
+       * `restrictNewValue' sets true to do not allow new value
+       */
+      restrictNewValue: {
+        type: Boolean,
+        value: false
+      },
+      
+      /**
        * `errorMessage` The error message to display when the input is invalid.
        */
       errorMessage: {
@@ -189,6 +197,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       disableShowClear:{
         type:Boolean,
         value:false
+      },
+      /**
+       * invalid status of the elements 
+       */
+      InvalidStatus: {
+        type: Object,
+        value: function() {
+          return {
+            'required': 'Required',
+            'invalidInput': 'New value is not allowed'
+          }
+        }
       },
 
       remoteSource:{
@@ -587,6 +607,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     validate: function(){
+      //TODO : update this method for validate in deffrent way
       return this.$.input.validate();
     },
 
