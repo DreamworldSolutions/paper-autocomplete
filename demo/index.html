@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>hisab-rate-conversion-input Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../paper-autocomplete.html">
+
+  </head>
+  <style>
+    #autocomplete{
+      margin-left: 10px;
+    }
+  </style>
+  <body unresolved>
+
+    <p>An example of <code>&lt;hisab-rate-conversion-input&gt;</code>:</p>
+
+    <paper-autocomplete id="autocomplete"  text-property="name" value-property="_id" error-message="a dofa" required></paper-autocomplete>
+
+    <script>
+    var el = document.querySelector('#autocomplete');
+    var oList = [{
+      '_id': '1',
+      'name':'anushka sharma',
+      'type': 'contact'
+    },{
+      '_id': '2',
+      'name':'anushka sharma2',
+      'type': 'contact'
+    },{
+      '_id': '3',
+      'name':'anushka sharma3',
+      'type': 'contact'
+    },{
+      '_id': '4',
+      'name':'anushka sharma4',
+      'type': 'contact'
+    },{
+      '_id': '5ww',
+      'name':'anushka sharma5',
+      'type': 'contact'
+    },{
+      '_id': '6',
+      'name':'anushka sharma6',
+      'type': 'contact'
+    },{
+      '_id': '7',
+      'name':'anushka sharma7',
+      'type': 'contact'
+    },{
+      '_id': '8',
+      'name':'anushka sharma8',
+      'type': 'contact'
+    },{
+      '_id': '9',
+      'name':'rav',
+      'type': 'contact'
+    }]
+    
+//     var oList = ['surat','rtytyrt','fdhfhfgh','jghjghjgh','fsdfs','gsdfgfgjgfhd','fssdfseetgb','fsdfz2wef']
+    el.set('source', oList);
+    el.set('inputValue', {
+      '_id': '3',
+      'name':'anushka sharma3'
+    });
+//     el.set('value','ewteb1');
+    </script>
+
+  </body>
+</html>

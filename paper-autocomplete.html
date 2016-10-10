@@ -13,6 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../paper-ripple/paper-ripple.html">
 <link rel="import" href="../paper-material/paper-material.html">
 
@@ -69,16 +72,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template>
     <div class="input-wrapper">
-      <paper-input id="input" label="[[label]]" no-label-float="[[noLabelFloat]]" on-keyup="_onKeypress" disabled="{{disabled}}" auto-validate$="[[autoValidate]]" error-message$="[[errorMessage]]" required$="[[required]]" value="{{text}}"></paper-input>
-      <paper-icon-button id="clear" icon="clear" on-click="_clear"></paper-icon-button>
+      <paper-input id="input" label="[[label]]" no-label-float="[[noLabelFloat]]" on-keyup="_onKeypress" disabled="{{disabled}}" auto-validate$="[[autoValidate]]" error-message$="[[errorMessage]]" required$="[[required]]" value="{{text}}">
+        <paper-icon-button icon="arrow-drop-down" on-tap="_openSuggestions" suffix></paper-icon-button>
+      </paper-input>
+<!--       <paper-icon-button id="clear" icon="clear" on-click="_clear"></paper-icon-button> -->
     </div>
     <paper-material elevation="1" id="suggestionsWrapper">
-      <template is="dom-repeat" items="{{_suggestions}}">
+      <template is="dom-if" if="[[showIconWithItem]]">
+        <template is="dom-repeat" items="{{_suggestions}}">
+        <paper-icon-item on-click="_onSelect">
+          <iron-icon icon="[[item.icon]]" item-icon></iron-icon>
+          <div>{{item.text}}</div>
+          <paper-ripple></paper-ripple>
+        </paper-icon-item>
+      </template>
+      </template>
+      <template is="dom-if" if="[[!showIconWithItem]]">
+        <template is="dom-repeat" items="{{_suggestions}}">
         <paper-item on-click="_onSelect">
           <div>{{item.text}}</div>
           <paper-ripple></paper-ripple>
         </paper-item>
       </template>
+      </template>
+      
     </paper-material>
   </template>
 </dom-module>
@@ -94,7 +111,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Boolean,
         value: false
       },
-
+      
+      /**
+       * `showIconWithItem` Set to true to show icon with suggestions list-item.
+       */
+      showIconWithItem: {
+        type: Boolean,
+        value: false
+      },
+      
       /**
        * `errorMessage` The error message to display when the input is invalid.
        */
@@ -124,7 +149,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       /**
        * `source` Array of objects with the options to execute the autocomplete feature
        */
-      source: Array,
+      source: {
+        type: Array
+      },
       /**
        *
        */
@@ -136,17 +163,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type:String,
         value:'value'
       },
+      
+      /**
+       * `inputValue` that is provided default
+       */
+      inputValue: {
+        type: Object
+      },
+      
       /**
        * `value` Selected object from the suggestions
        */
       value: {
         type: Object,
-        notify: true
+        notify: true,
+        observer: '_onValueChange'
       },
 
       text:{
         type:String,
-        notify:true
+        notify:true,
+        observer: '_ontextChange'
       },
 
       disableShowClear:{
@@ -183,18 +220,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _itemHeight:{
         value:36
       },
-      _value:{
-        value:undefined
-      },
-      _text:{
-        value:undefined
-      }
+//       _value:{
+//         value:undefined
+//       },
+//       _text:{
+//         value:undefined
+//       }
     },
     // Element Lifecycle
-    ready: function() {
-      this._value=this.value;
-    },
-
+//     ready: function() {
+//       this._value=this.value;
+//     },
+   observers: ['_setValue(source,inputValue)'],
     attached: function() {
       // `attached` fires once the element and its parents have been inserted
       // into a document.
@@ -213,23 +250,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'input.focus':'_onFocus',
       'input.blur':'_onBlur'
     },
-
+    
+    /**
+     * invoked on value property change
+     * sets text property for input 
+     */
+    _onValueChange: function(){
+      
+    },
+    
+    /**
+     * invoked on text property change
+     * sets value property of element
+     */
+    _ontextChange: function(){
+      
+    },
+    
+    /**
+     * called when source and inputValue is changed
+     * sets value property of element
+     *
+     * @param {source} source property of element
+     * @param {inputValue} inputvalue property of element
+     */
+    _setValue: function(source,inputValue){
+      
+     },
+     
     // Element Behavior
     /**
      * Clears the input text
      */
-    _clear : function() {
-      this.value=this._value;
-      this.text=this._text;
-      this.$.clear.style.display = 'none';
-      this._hideSuggestionsWrapper();
-      this._emptyItems();
-      var option = {
-        text: this.text,
-        value: this.value
-      };
-      this._fireEvent(option,'reset');
-    },
+//     _clear : function() {
+//       this.value=this._value;
+//       this.text=this._text;
+//       this.$.clear.style.display = 'none';
+//       this._hideSuggestionsWrapper();
+//       this._emptyItems();
+//       var option = {
+//         text: this.text,
+//         value: this.value
+//       };
+//       this._fireEvent(option,'reset');
+//     },
 
     /**
      * Hide the suggestions wrapper
@@ -256,7 +320,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (value && value.length >= minLength) {
         this._fireEvent(option, 'change');
       } else {
-        this.$.clear.style.display = 'none';
+//         this.$.clear.style.display = 'none';
         this._suggestions = [];
       }
     },
@@ -266,10 +330,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this._suggestions = arr;
         this._currentIndex = -1;
         this._scrollIndex = 0;
-        if(!this.disableShowClear) this.$.clear.style.display = 'block';
+//         if(!this.disableShowClear) this.$.clear.style.display = 'block';
         this.$.suggestionsWrapper.style.display = 'block';
       } else {
-        this.$.clear.style.display = 'none';
+//         this.$.clear.style.display = 'none';
         this._suggestions = [];
       }
     },
@@ -282,7 +346,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if(value && value.length >=minLength){
         value = value.toLowerCase();
         // Shows the clear button.
-        if(!this.disableShowClear) this.$.clear.style.display = 'block';
+//         if(!this.disableShowClear) this.$.clear.style.display = 'block';
         // Search for the word in the source properties.
         if(this.source && this.source.length > 0){
           this._suggestions = [];
@@ -292,12 +356,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             var item = this.source[i];
             if(typeof item==='object'){
               objText=item[this.textProperty];
-              objValue=item[this.valueProperty]
+              objValue=item
             }else{
               objText=item.toString();
               objValue=objText;
             }
-            if(objText.toLowerCase().indexOf(value)===0){
+            if(objText.toLowerCase().indexOf(value) === 0 || objText.toLowerCase().indexOf(' '+value)!== -1){
               // Adds the item to the suggestions list.
               this.push('_suggestions', {text : objText , value : objValue});
             }
@@ -309,11 +373,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }
       }else{
-        this.$.clear.style.display = 'none';
+//         this.$.clear.style.display = 'none';
         this._suggestions = [];
       }
     },
-
+    
+    /**
+     * opens suggestions list on click of dropdown icon's click
+     */
+    _openSuggestions: function(){
+      
+      if(this.openList){
+        this._hideSuggestionsWrapper();
+        this.openList=false;
+        return;
+      }
+      if(this.source && this.source.length > 0){
+        this._suggestions = [];
+        var length = this.source.length;
+        var objText,objValue;
+        for(var i = 0; i < length; i++){
+          var item = this.source[i];
+          if(typeof item==='object'){
+            objText=item[this.textProperty];
+            objValue=item
+          }else{
+            objText=item.toString();
+            objValue=objText;
+          }
+          if(this.text){
+            if(objText.toLowerCase().indexOf(this.text) === 0 || objText.toLowerCase().indexOf(' '+this.text)!== -1){
+              // Adds the item to the suggestions list.
+              this.push('_suggestions', {text : objText , value : objValue});
+            }
+          }else{
+            this.push('_suggestions', {text : objText , value : objValue});
+          }
+        }
+        if (this._suggestions.length > 0) {
+          this.$.suggestionsWrapper.style.display = 'block';
+          this.openList = true;
+        }else{
+          this._hideSuggestionsWrapper();
+        }
+      } else{
+//         this.$.clear.style.display = 'none';
+         this.$.suggestionsWrapper.style.display = 'block';
+         this.openList = true;
+        this._suggestions = [];
+      }
+    },
+    
     _selection : function(index) {
       var selectedOption = this._suggestions[index];
       var self = this;
@@ -321,14 +431,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.value = selectedOption.value;
       this._value=this.value;
       this._text=this.text;
-      this.$.clear.style.display = 'none';
+//       this.$.clear.style.display = 'none';
       this._emptyItems();
       this._fireEvent(selectedOption,'selected');
       setTimeout(function() {
         self._hideSuggestionsWrapper();
+        self.$.input.focus();
       }, 300);
     },
-
+    
     _getItems:function(){
       return this.querySelectorAll('paper-item');
     },
@@ -431,7 +542,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       
       this._fireEvent(option,'blur');
       setTimeout(function() {
-        self.$.clear.style.display = 'none';
+//         self.$.clear.style.display = 'none';
         self._hideSuggestionsWrapper();
       }, 300);
     },
@@ -479,25 +590,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return this.$.input.validate();
     },
 
-    clear:function(){
-      this._value='';
-      this._text='';
-      this._clear();
-    },
+//     clear:function(){
+//       this._value='';
+//       this._text='';
+//       this._clear();
+//     },
 
-    reset:function(){
-      this._clear();
-    },
+//     reset:function(){
+//       this._clear();
+//     },
 
     hideSuggestions:function(){
       var self=this;
       setTimeout(function() {
-        self.$.clear.style.display = 'none';
+//         self.$.clear.style.display = 'none';
         self._hideSuggestionsWrapper();
       }, 300);
     }
-
-
-
   });
 </script>
